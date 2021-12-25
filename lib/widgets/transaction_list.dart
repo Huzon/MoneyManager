@@ -12,23 +12,25 @@ class TransactionList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 450,
+      // height: 450,
       child: transactions.isEmpty
-          ? Column(
-              children: <Widget>[
-                Text(
-                  'No transactions yet!',
-                  style: Theme.of(context).textTheme.headline6,
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Container(
-                  height: 200,
-                  child: Image.asset('assets/images/waiting.png'),
-                ),
-              ],
-            )
+          ? LayoutBuilder(builder: (ctx, constraints) {
+              return Column(
+                children: <Widget>[
+                  Text(
+                    'No transactions yet!',
+                    style: Theme.of(context).textTheme.headline6,
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Container(
+                    height: constraints.maxHeight * 0.7,
+                    child: Image.asset('assets/images/waiting.png'),
+                  ),
+                ],
+              );
+            })
           : ListView.builder(
               itemBuilder: (bldCtx, index) {
                 return Card(
@@ -55,9 +57,10 @@ class TransactionList extends StatelessWidget {
                       DateFormat.yMd().format(transactions[index].date),
                     ),
                     trailing: IconButton(
-                      icon: Icon(Icons.delete), color: Theme.of(context).errorColor,
-                      onPressed: ()=>dltTx(transactions[index].id),
-                      ),
+                      icon: Icon(Icons.delete),
+                      color: Theme.of(context).errorColor,
+                      onPressed: () => dltTx(transactions[index].id),
+                    ),
                   ),
                 );
               },
