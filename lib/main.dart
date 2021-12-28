@@ -64,7 +64,7 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   final List<Transaction> _userTransactions = [
     // Transaction(
     //     id: 't1', title: 'New Shoes', amount: 65.60, date: DateTime.now()),
@@ -109,7 +109,64 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  List<Widget> _buildLandscape(
+      MediaQueryData mediaQuery, AppBar appBar, Widget transactions) {
+    return [
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Text('Chart'),
+          Switch(
+            value: _switch,
+            onChanged: (bool value) {
+              setState(() {
+                _switch = value;
+              });
+            },
+          ),
+        ],
+      ),
+      _switch
+          ? Container(
+              height: (mediaQuery.size.height -
+                      appBar.preferredSize.height -
+                      mediaQuery.padding.top) *
+                  0.7,
+              child: Chart(_recentTransactions))
+          : transactions,
+    ];
+  }
+
+  List<Widget> _buildPortrait(
+      MediaQueryData mediaQuery, AppBar appBar, Widget transactions) {
+    return [
+      Container(
+          height: (mediaQuery.size.height -
+                  appBar.preferredSize.height -
+                  mediaQuery.padding.top) *
+              0.3,
+          child: Chart(_recentTransactions)),
+      transactions,
+    ];
+  }
+
   bool _switch = false;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {}
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -151,37 +208,9 @@ class _MyHomePageState extends State<MyHomePage> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
               if (isLandscape)
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('Chart'),
-                    Switch(
-                      value: _switch,
-                      onChanged: (bool value) {
-                        setState(() {
-                          _switch = value;
-                        });
-                      },
-                    ),
-                  ],
-                ),
+                ..._buildLandscape(mediaQuery, appBar, transactions),
               if (!isLandscape)
-                Container(
-                    height: (mediaQuery.size.height -
-                            appBar.preferredSize.height -
-                            mediaQuery.padding.top) *
-                        0.3,
-                    child: Chart(_recentTransactions)),
-              if (!isLandscape) transactions,
-              if (isLandscape)
-                _switch
-                    ? Container(
-                        height: (mediaQuery.size.height -
-                                appBar.preferredSize.height -
-                                mediaQuery.padding.top) *
-                            0.7,
-                        child: Chart(_recentTransactions))
-                    : transactions,
+                ..._buildPortrait(mediaQuery, appBar, transactions),
               //list of transactions
             ]),
       ),
